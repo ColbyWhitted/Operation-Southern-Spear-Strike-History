@@ -1,10 +1,11 @@
 services:
   db:
     image: postgres:16
+    env_file:
+      - ./backend/.env
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
