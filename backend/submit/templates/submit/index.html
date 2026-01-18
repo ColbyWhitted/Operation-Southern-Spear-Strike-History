@@ -1,0 +1,228 @@
+{# templates/sources/index.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block scripts %}
+  {# (Optional) If you ever add per-source map/video previews, you can add scripts here. #}
+{% endblock %}
+
+{% block page_title %}Sources for {{ strike.date }} at {{ strike.location_label }}{% endblock %}
+
+{% block bg-color %}bg-blue-950{% endblock %}
+
+{% block page_heading %}
+  {{ strike.date }} <span class="text-amber-400">|</span> {{ strike.location_label }}
+{% endblock %}
+
+{% block main_content %}
+  {# Sidebar: list of all strikes (links go to that strike's sources page) #}
+  <aside class="w-72 border-r border-white/10 bg-white/[0.03] h-screen overflow-hidden flex flex-col">
+    <div class="p-5">
+      <!-- Sidebar search (static for now; HTMX later if you want) -->
+      <div class="relative">
+        <p class="text-base font-bold">Strike Sources List</p>
+      </div>
+    </div>
+
+    <!-- Strike list -->
+    <div class="px-3 pb-6 flex-1 overflow-y-auto">
+      <ul class="space-y-2">
+        {% for s in strike_list %}
+          <li>
+            {# Update this URL to your real route name once you have it #}
+            {# Example: {% url 'sources:index' s.pk %} #}
+            <a href="/sources/{{ s.pk }}/">
+              <button
+                class="group flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left shadow-sm transition hover:bg-white/7"
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="grid h-5 w-5 place-items-center rounded-md bg-amber-500/90 text-zinc-950"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      class="h-4 w-4"
+                      stroke-width="3"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </span>
+
+                  <div class="leading-tight">
+                    <div class="text-sm font-medium">{{ s.date }}</div>
+                    <div class="text-xs text-zinc-500">Strike Id: {{ s.pk }}</div>
+                  </div>
+                </div>
+
+                {% if strike and s.pk == strike.pk %}
+                  <span class="h-4 w-4 rounded-full bg-amber-500/90"></span>
+                {% else %}
+                  <span class="h-4 w-4 rounded-full border-2 border-amber-500/90"></span>
+                {% endif %}
+              </button>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+
+  {# Main content #}
+  <main class="flex-1 bg-gradient-to-b from-white/[0.02] to-transparent">
+    {% if success %}
+      <div class="p-2">
+        <div
+          class="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-800"
+        >
+          <p>Your source submission was successful! Thank you for contributing.</p>
+        </div>
+      </div>
+    {% endif %}
+    <div class="p-6">
+       <p>Submit a new source</p>
+    </div>
+    
+   <form id="submit-form" method="post" class="p-6 space-y-5">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-800">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <!-- Description -->
+  <div>
+    <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-zinc-200 mb-1">
+      {{ form.description.label }}
+    </label>
+    <textarea
+      name="{{ form.description.name }}"
+      id="{{ form.description.id_for_label }}"
+      class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+      rows="5"
+      placeholder="Summarize what this source says…"
+    >{{ form.description.value|default_if_none:"" }}</textarea>
+    {% for error in form.description.errors %}
+      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <!-- Source URL -->
+  <div>
+    <label for="{{ form.source_url.id_for_label }}" class="block text-sm font-semibold text-zinc-200 mb-1">
+      {{ form.source_url.label }}
+    </label>
+    <input
+      type="url"
+      name="{{ form.source_url.name }}"
+      id="{{ form.source_url.id_for_label }}"
+      value="{{ form.source_url.value|default_if_none:'' }}"
+      class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+      placeholder="https://…"
+    />
+    {% for error in form.source_url.errors %}
+      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <!-- New vs Existing -->
+  <div>
+    <label for="{{ form.existing_strike.id_for_label }}" class="block text-sm font-semibold text-zinc-200 mb-1">
+      {{ form.existing_strike.label }}
+    </label>
+    <select
+      name="{{ form.existing_strike.name }}"
+      id="existing-strike-wrap"
+      class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+    >
+      {% for value, label in form.fields.existing_strike.choices %}
+        <option value="{{ value }}" {% if form.existing_strike.value == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    {% for error in form.existing_strike.errors %}
+      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <!-- Strike List (multi-select, because your field is ModelMultipleChoiceField) -->
+
+  <div id="strike-list-wrap" >
+    <label for="{{ form.strike_list.id_for_label }}" class="block text-sm font-semibold text-zinc-200 mb-1">
+      {{ form.strike_list.label }}
+    </label>
+    <select
+      name="{{ form.strike_list.name }}"
+      id="{{ form.strike_list.id_for_label }}"
+      multiple
+      class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+      size="6"
+    >
+      {% for strike in form.fields.strike_list.queryset %}
+        <option
+          value="{{ strike.pk }}"
+          {% if form.strike_list.value and strike.pk|stringformat:"s" in form.strike_list.value %}selected{% endif %}
+        >
+          {{ strike }}
+        </option>
+      {% endfor %}
+    </select>
+    <p class="mt-1 text-xs text-zinc-400">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</p>
+    {% for error in form.strike_list.errors %}
+      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <!-- Date (keep Django's SelectDateWidget output so it POSTs correctly) -->
+  <div id="date-wrap" style="display:none">
+    <label class="block text-sm font-semibold text-zinc-200 mb-1">
+      {{ form.new_strike_date.label }}
+    </label>
+
+    <div class="grid grid-cols-3 gap-2">
+      {{ form.new_strike_date }}
+    </div>
+
+    {% for error in form.new_strike_date.errors %}
+      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
+    {% endfor %}
+  </div>
+
+  <button
+    type="submit"
+    class="mt-2 inline-flex items-center justify-center rounded-lg bg-amber-500 px-4 py-2 font-semibold text-zinc-950 hover:bg-amber-600 transition"
+  >
+    Submit Source
+  </button>
+
+  <!-- Add Tailwind classes to the 3 date selects (and force black text) -->
+  <script>
+    (function () {
+      const wrap = document.getElementById("date-wrap");
+      if (!wrap) return;
+
+      const selects = wrap.querySelectorAll("select");
+      selects.forEach((el) => {
+        el.className =
+          "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black " +
+          "focus:outline-none focus:ring-2 focus:ring-amber-500/60";
+      });
+    })();
+  </script>
+</form>
+
+
+
+      </div>
+    </div>
+  </main>
+{% endblock %}
+
+{% block bottom_scripts %}
+  {# If you add Sources-page-specific JS later, load it here #}
+  <script src="{% static 'submit/js/form.js' %}"></script>
+{% endblock %}

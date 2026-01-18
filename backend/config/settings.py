@@ -31,6 +31,8 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get
 
 INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
+    'sources.apps.SourcesConfig',
+    'submit.apps.SubmitConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

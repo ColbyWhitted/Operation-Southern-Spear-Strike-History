@@ -1,5 +1,5 @@
 from django.db import models
-
+from sources.models import Source
 # Create your models here.
 # This model is not showing up in migrations
 
@@ -16,9 +16,12 @@ class Strike(models.Model):
     crew_number = models.IntegerField(null=True, blank=True)
     number_killed = models.IntegerField(null=True, blank=True)
     image_url = models.URLField(null=True, blank=True)
+    image_label = models.CharField(max_length=255, null=True, blank=True)
     video_url = models.URLField(null=True, blank=True)
     dvids_video_id = models.CharField(max_length=50, null=True, blank=True)
     target_destination = models.CharField(max_length=255, null=True, blank=True)
+    summary = models.TextField(max_length=1500, null=True)
+    sources = models.ManyToManyField('sources.Source', blank=True)
 
     def __str__(self):
         return f"{self.date} - {self.pk}"

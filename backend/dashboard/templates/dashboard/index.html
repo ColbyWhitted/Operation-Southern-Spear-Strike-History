@@ -14,83 +14,66 @@
 
 
 {% endblock %}
-
+{% block bg-color %}bg-zinc-950{% endblock %}
 {%block page_title%}Strike on {{strike.date}} at {{strike.location}}{%endblock%}
 
 
 {%block page_heading%}{{strike.date}} <span class="text-amber-400">|</span> {{strike.location_label}}{%endblock%}
 
 {%block main_content%}
-              <aside class="w-72 border-r border-white/10 bg-white/[0.03]">
-            <div class="p-5">
-              <!-- Sidebar search -->
-              <div class="relative">
-                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">
-                  <!-- magnifier -->
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    class="h-4 w-4"
-                    stroke-width="2"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M21 21l-4.3-4.3m1.8-5.2a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search"
-                  class="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-zinc-100 placeholder:text-zinc-500 outline-none ring-0 focus:border-white/20 focus:bg-white/7"
-                />
+<aside class="w-72 border-r border-white/10 bg-white/[0.03] h-screen overflow-hidden flex flex-col">
+  <div class="p-5">
+    <!-- Sidebar search -->
+    <div class="relative">
+      <p class="text-base font-bold">Strikes List</p>
+    </div>
+  </div>
+
+  <!-- Strike list -->
+  <div class="px-3 pb-6 flex-1 overflow-y-auto">
+    <ul class="space-y-2">
+      {% for strike_list_item in all_strikes %}
+      <li>
+        <a href="/dashboard/{{strike_list_item.pk}}">
+          <button
+            class="group flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left shadow-sm transition hover:bg-white/7"
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="grid h-5 w-5 place-items-center rounded-md bg-amber-500/90 text-zinc-950"
+                aria-hidden="true"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  class="h-4 w-4"
+                  stroke-width="3"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+
+              <div class="leading-tight">
+                <div class="text-sm font-medium">{{strike_list_item.date}}</div>
+                <div class="text-xs text-zinc-500">Strike Id:{{strike_list_item.pk}}</div>
               </div>
             </div>
 
-            <!-- Strike list -->
-            <div class="px-3 pb-6">
-              <ul class="space-y-2">
-                <!-- Item (active) -->
-                 {% for strike in all_strikes %}
-                <li>
-                  <a href="/dashboard/{{strike.pk}}">
-                  <button
-                    class="group flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left shadow-sm transition hover:bg-white/7"
-                  >
-                    <div class="flex items-center gap-3">
-                      <span
-                        class="grid h-5 w-5 place-items-center rounded-md bg-amber-500/90 text-zinc-950"
-                        aria-hidden="true"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          class="h-4 w-4"
-                          stroke-width="3"
-                        >
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
+                {% if strike and strike.pk == strike_list_item.pk %}
+                  <span class="h-4 w-4 rounded-full bg-amber-500/90"></span>
+                {% else %}
+                  <span class="h-4 w-4 rounded-full border-2 border-amber-500/90"></span>
+                {% endif %}
+          </button>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</aside>
 
-                      <div class="leading-tight">
-                        <div class="text-sm font-medium">{{strike.date}}</div>
-                        <div class="text-xs text-zinc-500">Strike Id:{{strike.pk}}</div>
-                      </div>
-                    </div>
-
-                    <span class="h-4 w-4 rounded-full border-2 border-amber-500/90"></span>
-                  </button>
-                  </a>
-                </li>
-                {% endfor %}
-              </ul>
-            </div>
-          </aside>
                     <main class="flex-1 bg-gradient-to-b from-white/[0.02] to-transparent">
             <div class="p-6">
               <!-- Top grid -->
@@ -105,8 +88,13 @@
                       <table class="w-full text-sm">
                         <tbody class="divide-y divide-white/10">
                           <tr class="bg-white/[0.02]">
-                            <td class="w-1/2 px-4 py-3 text-zinc-200">Target</td>
-                            <td class="w-1/2 px-4 py-3 text-right text-zinc-300">{{ strike.target }}</td>
+                            <td colspan="2" class="px-4 py-3 text-zinc-300">
+                              {% if strike.summary %}
+                                {{ strike.summary }}
+                              {%else%}
+                                No summary is available. To add a summary click the submit button at the bottom of the page.  
+                              {% endif %}
+                            </td>
                           </tr>
                           <tr>
                             <td class="px-4 py-3 text-zinc-200">Striker</td>
@@ -151,6 +139,7 @@
                     </div>
 
                     <div class="mt-5">
+                      <a href="/sources/{{strike.pk}}">
                       <button
                         class="inline-flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-zinc-100 shadow-sm transition hover:bg-white/7"
                       >
@@ -168,6 +157,7 @@
                           </svg>
                         </span>
                       </button>
+                      </a>
                     </div>
                   </div>
                 </section>
@@ -203,7 +193,10 @@
                 {% if strike.dvids_video_id %}
                   <div class="relative aspect-[16/9] bg-zinc-900">
                     
-                    <iframe class="absolute inset-0 h-full w-full"
+<iframe
+  class="absolute inset-0 h-full w-full"
+  style="overflow:hidden; clip-path: inset(0 0 28px 0);"
+  scrolling="no"
   src="https://www.dvidshub.net/video/embed/{{strike.dvids_video_id}}"
   width="800"
   height="450"
@@ -211,9 +204,10 @@
   allowfullscreen
 ></iframe>
 
+
                   </div>
                   {% else %}
-                  <p class="px-4 pb-4 text-sm text-zinc-400">No footage is available. To submit footage, click on the submit button at the bottom of the page.</p>
+                  <p class="px-4 pb-4 py-2 text-sm text-zinc-400">No footage is available. To submit footage, click on the submit button at the bottom of the page.</p>
                   {% endif %}
                 </section>
 
@@ -222,18 +216,32 @@
                   class="col-span-12 lg:col-span-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-xl shadow-black/30"
                 >
                 {% if strike.image_url %}
-                  <div class="relative aspect-[16/9] bg-zinc-900">
-                    <!-- Placeholder "image" -->
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_35%_35%,rgba(255,255,255,0.10),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(34,211,238,0.10),transparent_55%),linear-gradient(to_bottom,rgba(255,255,255,0.02),transparent)]"></div>
-                    <div
-                      class="absolute inset-0 opacity-25"
-                      style="background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.55));"
-                    ></div>
-                  </div>
+<div class="relative aspect-[16/9] bg-zinc-900">
+  {% if strike.image_url %}
+    <img
+      src="{{ strike.image_url }}"
+      alt="Strike image"
+      class="absolute inset-0 h-full w-full object-cover"
+      loading="lazy"
+    />
+    <div
+      class="absolute inset-0 opacity-25"
+      style="background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.55));"
+    ></div>
+  {% else %}
+    <div class="absolute inset-0 flex items-center justify-center text-sm text-zinc-400">
+      No image available
+    </div>
+  {% endif %}
+</div>
+
+                  <div class="border-t border-white/10 bg-black/20 px-4 py-2 text-sm text-zinc-200">
+                     {{ strike.image_label }}
+                   </div>
+                  {% else %}
+                  <p class="px-4 py-2 pb-4 text-sm text-zinc-400">No image is available. To submit an image, click on the submit button at the bottom of the page.</p>
+                  {% endif %}
                 </section>
-                {% else %}
-                <p class="px-4 pb-4 text-sm text-zinc-400">No image is available. To submit an image, click on the submit button at the bottom of the page.</p>
-                {% endif %}
               </div>
             </div>
           </main>
