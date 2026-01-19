@@ -6,12 +6,12 @@
   {# (Optional) If you ever add per-source map/video previews, you can add scripts here. #}
 {% endblock %}
 
-{% block page_title %}Sources for {{ strike.date }} at {{ strike.location_label }}{% endblock %}
+{% block page_title %}Submit a Source{% endblock %}
 
 {% block bg-color %}bg-blue-950{% endblock %}
 
 {% block page_heading %}
-  {{ strike.date }} <span class="text-amber-400">|</span> {{ strike.location_label }}
+  {{ strike.date }} <span class="text-amber-400">Submit a Source</span> {{ strike.location_label }}
 {% endblock %}
 
 {% block main_content %}
@@ -82,9 +82,6 @@
         </div>
       </div>
     {% endif %}
-    <div class="p-6">
-       <p>Submit a new source</p>
-    </div>
     
    <form id="submit-form" method="post" class="p-6 space-y-5">
   {% csrf_token %}

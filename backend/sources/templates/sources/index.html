@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block scripts %}
-  {# (Optional) If you ever add per-source map/video previews, you can add scripts here. #}
+  
 {% endblock %}
 
 {% block page_title %}Sources for {{ strike.date }} at {{ strike.location_label }}{% endblock %}
@@ -14,62 +14,13 @@
   {{ strike.date }} <span class="text-amber-400">|</span> {{ strike.location_label }}
 {% endblock %}
 
+{% block sidebar %}
+{% include "partials/sources_sidebar.html" %}
+{% endblock %}
+
 {% block main_content %}
-  {# Sidebar: list of all strikes (links go to that strike's sources page) #}
-  <aside class="w-72 border-r border-white/10 bg-white/[0.03] h-screen overflow-hidden flex flex-col">
-    <div class="p-5">
-      <!-- Sidebar search (static for now; HTMX later if you want) -->
-      <div class="relative">
-        <p class="text-base font-bold">Strike Sources List</p>
-      </div>
-    </div>
 
-    <!-- Strike list -->
-    <div class="px-3 pb-6 flex-1 overflow-y-auto">
-      <ul class="space-y-2">
-        {% for s in all_strikes %}
-          <li>
-            {# Update this URL to your real route name once you have it #}
-            {# Example: {% url 'sources:index' s.pk %} #}
-            <a href="/sources/{{ s.pk }}/">
-              <button
-                class="group flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-left shadow-sm transition hover:bg-white/7"
-              >
-                <div class="flex items-center gap-3">
-                  <span
-                    class="grid h-5 w-5 place-items-center rounded-md bg-amber-500/90 text-zinc-950"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      class="h-4 w-4"
-                      stroke-width="3"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-
-                  <div class="leading-tight">
-                    <div class="text-sm font-medium">{{ s.date }}</div>
-                    <div class="text-xs text-zinc-500">Strike Id: {{ s.pk }}</div>
-                  </div>
-                </div>
-
-                {% if strike and s.pk == strike.pk %}
-                  <span class="h-4 w-4 rounded-full bg-amber-500/90"></span>
-                {% else %}
-                  <span class="h-4 w-4 rounded-full border-2 border-amber-500/90"></span>
-                {% endif %}
-              </button>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </aside>
+ 
 
   {# Main content #}
   <main class="flex-1 bg-gradient-to-b from-white/[0.02] to-transparent">

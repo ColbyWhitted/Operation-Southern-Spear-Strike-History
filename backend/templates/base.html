@@ -1,5 +1,5 @@
 {# templates/base.html #}
-{% load static %}
+{% load static tailwind_tags %}
 
 <!doctype html>
 <html lang="en">
@@ -13,7 +13,7 @@
     <meta name="csrf-token" content="{{ csrf_token }}" />
 
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    {% tailwind_css %}
 
      {% block scripts %}
      {% endblock %}
@@ -37,7 +37,7 @@
 
         <!-- Main -->
         <div class="flex">
-
+            {% block sidebar %}{% endblock %}
             {% block main_content %}{% endblock %}
 
           <!-- Content -->
