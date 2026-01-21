@@ -134,8 +134,13 @@
     </label>
     <select
       name="{{ form.existing_strike.name }}"
-      id="existing-strike-wrap"
+      id="existing-strike-select"
       class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+      hx-get="{% url 'submit:strike_fields' %}"
+      hx-trigger="change"
+      hx-target="#strike-fields-container"
+      hx-swap="innerHTML"
+      hx-vals='js:{"strike_type": document.getElementById("existing-strike-select").value}'
     >
       {% for value, label in form.fields.existing_strike.choices %}
         <option value="{{ value }}" {% if form.existing_strike.value == value %}selected{% endif %}>{{ label }}</option>
@@ -146,47 +151,9 @@
     {% endfor %}
   </div>
 
-  <!-- Strike List (multi-select, because your field is ModelMultipleChoiceField) -->
-
-  <div id="strike-list-wrap" >
-    <label for="{{ form.strike_list.id_for_label }}" class="block text-sm font-semibold text-zinc-200 mb-1">
-      {{ form.strike_list.label }}
-    </label>
-    <select
-      name="{{ form.strike_list.name }}"
-      id="{{ form.strike_list.id_for_label }}"
-      multiple
-      class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500/60"
-      size="6"
-    >
-      {% for strike in form.fields.strike_list.queryset %}
-        <option
-          value="{{ strike.pk }}"
-          {% if form.strike_list.value and strike.pk|stringformat:"s" in form.strike_list.value %}selected{% endif %}
-        >
-          {{ strike }}
-        </option>
-      {% endfor %}
-    </select>
-    <p class="mt-1 text-xs text-zinc-400">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</p>
-    {% for error in form.strike_list.errors %}
-      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
-    {% endfor %}
-  </div>
-
-  <!-- Date (keep Django's SelectDateWidget output so it POSTs correctly) -->
-  <div id="date-wrap" style="display:none">
-    <label class="block text-sm font-semibold text-zinc-200 mb-1">
-      {{ form.new_strike_date.label }}
-    </label>
-
-    <div class="grid grid-cols-3 gap-2">
-      {{ form.new_strike_date }}
-    </div>
-
-    {% for error in form.new_strike_date.errors %}
-      <p class="mt-1 text-sm text-red-400">{{ error }}</p>
-    {% endfor %}
+  <!-- Conditional fields container (swapped by HTMX) -->
+  <div id="strike-fields-container">
+    {% include "submit/partials/strike_fields.html" with strike_type=form.existing_strike.value|default:"existing" %}
   </div>
 
   <button
@@ -196,20 +163,6 @@
     Submit Source
   </button>
 
-  <!-- Add Tailwind classes to the 3 date selects (and force black text) -->
-  <script>
-    (function () {
-      const wrap = document.getElementById("date-wrap");
-      if (!wrap) return;
-
-      const selects = wrap.querySelectorAll("select");
-      selects.forEach((el) => {
-        el.className =
-          "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black " +
-          "focus:outline-none focus:ring-2 focus:ring-amber-500/60";
-      });
-    })();
-  </script>
 </form>
 
 
@@ -220,6 +173,4 @@
 {% endblock %}
 
 {% block bottom_scripts %}
-  {# If you add Sources-page-specific JS later, load it here #}
-  <script src="{% static 'submit/js/form.js' %}"></script>
 {% endblock %}

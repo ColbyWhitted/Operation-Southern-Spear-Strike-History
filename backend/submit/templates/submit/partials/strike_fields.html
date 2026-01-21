@@ -1,0 +1,35 @@
+{% if strike_type == 'existing' %}
+<!-- Strike List (multi-select) -->
+<div id="strike-list-wrap">
+  <label for="{{ form.strike_list.id_for_label }}" class="block text-sm font-semibold text-zinc-200 mb-1">
+    {{ form.strike_list.label }}
+  </label>
+  <select
+    name="{{ form.strike_list.name }}"
+    id="{{ form.strike_list.id_for_label }}"
+    multiple
+    class="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+    size="6"
+  >
+    {% for strike in form.fields.strike_list.queryset %}
+      <option value="{{ strike.pk }}">{{ strike }}</option>
+    {% endfor %}
+  </select>
+  <p class="mt-1 text-xs text-zinc-400">Hold Ctrl (Windows) / Cmd (Mac) to select multiple.</p>
+</div>
+{% else %}
+<!-- Date picker for new strike -->
+<div id="date-wrap">
+  <label class="block text-sm font-semibold text-zinc-200 mb-1">
+    {{ form.new_strike_date.label }}
+  </label>
+  <div id="date-selects" class="grid grid-cols-3 gap-2">
+    {{ form.new_strike_date }}
+  </div>
+</div>
+<script>
+  document.querySelectorAll('#date-selects select').forEach(function(el) {
+    el.className = 'w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-black focus:outline-none focus:ring-2 focus:ring-amber-500/60';
+  });
+</script>
+{% endif %}

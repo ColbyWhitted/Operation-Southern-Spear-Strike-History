@@ -7,12 +7,24 @@ from sources.models import Source
 from dashboard.models import Strike
 from .forms import SubmitForm
 
-# TODO: 
-# Add list of strikes back into side bar.
-# Using HTMX, make the form dynamically show/hide fields based on "new" vs "existing" strike choice.
+# TODO:
 # Create thank you page after submission.
 # Add strike date to front end
 # clean up UI
+
+
+def strike_fields(request):
+    """HTMX endpoint to return appropriate form fields based on strike type selection."""
+    strike_type = request.GET.get('strike_type', 'existing')
+    form = SubmitForm()
+
+    template = loader.get_template('submit/partials/strike_fields.html')
+    context = {
+        'form': form,
+        'strike_type': strike_type,
+    }
+    return HttpResponse(template.render(context, request))
+
 
 def index(request):
 
